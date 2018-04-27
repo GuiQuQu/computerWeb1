@@ -1,5 +1,10 @@
-package server;
+/*
+TODO: make threads to request and response as osIN,isIn,osOut,isOut
+TODO: override run for every thread
+ */
 
+
+package server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -1,5 +1,10 @@
 package server;
 
+/*
+TODO: make a wall to the vpn
+TODO: w_url_list forbid url,w_ip_list forbid ip
+TODO: w_redirect_list return helloworld
+ */
 
 import java.io.IOException;
 import java.io.OutputStream;

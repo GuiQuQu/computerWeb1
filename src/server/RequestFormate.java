@@ -1,3 +1,7 @@
+/*
+TODO: formate bytes response from server
+ */
+
 package server;
 
 public class RequestFormate {

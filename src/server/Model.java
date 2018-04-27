@@ -1,3 +1,6 @@
+/*
+TODO: the model of the request
+ */
 package server;
 
 public class Model {
