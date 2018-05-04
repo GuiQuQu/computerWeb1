@@ -18,7 +18,6 @@ public class Server {
             try{
                 socket = server.accept();
                 new SockeThread(socket).start();
-
             }catch (Exception e){
                 System.out.println("Error in Server!");
                 System.out.println("Error."+e);

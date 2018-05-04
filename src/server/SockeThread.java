@@ -16,6 +16,7 @@ public class SockeThread extends Thread{
     private OutputStream osIn,osOut;
     private byte[] bytes = new byte[2048];
 
+
     public SockeThread(Socket socket){ this.socketIn = socket; }
 
     public void run() {
@@ -29,29 +30,35 @@ public class SockeThread extends Thread{
             if((len = isIn.read(bytes))!=-1&&len>0){
                 requestInfo = RequestFormate.formatter(bytes,len);
                 requestInfo.ip = socketIn.getLocalAddress().getHostAddress();
-            }
-
-            if(Wall.redirect(requestInfo,osIn)){
-                socketOut = new Socket(requestInfo != null ? requestInfo.host : null, requestInfo != null ? requestInfo.port : 0);
-                isOut = socketOut.getInputStream();
-                osOut = socketOut.getOutputStream();
-
-                System.out.println(new String(requestInfo.bytes,0,requestInfo.len));
-                osOut.write(requestInfo.bytes,0,requestInfo.len);
-                osOut.flush();
-
-                if(Wall.forbid_ip(requestInfo)&&Wall.forbid_url(requestInfo)){
-
-                    SocketThreadOutput out = new SocketThreadOutput(isIn,osOut);
-                    out.start();
-                    SocketThreadInput in = new SocketThreadInput(isOut,osIn);
-                    in.start();
-
-                    out.join();
-                    in.join();
-
+                if(!Wall.redirect(requestInfo)) {
+                    requestInfo.host = "yumendy.com";
+                    requestInfo.url = "http://yumendy.com";
                 }
             }
+
+            socketOut = new Socket(requestInfo != null ? requestInfo.host : null, requestInfo != null ? requestInfo.port : 0);
+            isOut = socketOut.getInputStream();
+            osOut = socketOut.getOutputStream();
+
+            System.out.println("httpHeader bytes:");
+            System.out.println(new String(requestInfo.bytes,0,requestInfo.len));
+            System.out.println("http header end");
+
+            osOut.write(requestInfo.bytes,0,requestInfo.len);
+            osOut.flush();
+
+            if(Wall.forbid_ip(requestInfo)&&Wall.forbid_url(requestInfo)){
+
+                SocketThreadOutput out = new SocketThreadOutput(isIn,osOut);
+                out.start();
+                SocketThreadInput in = new SocketThreadInput(isOut,osIn);
+                in.start();
+
+                out.join();
+                in.join();
+
+            }
+
         }catch (Exception e){
             System.out.println("client error "+e.getMessage());
         }finally {
@@ -63,6 +70,19 @@ public class SockeThread extends Thread{
                 e.printStackTrace();
             }
         }
+    }
+    public static Model formatter(String str){
+
+        Model requestInfo = new Model();
+
+        requestInfo.method = "GET";
+        requestInfo.protocol = "HTTP/1.1";
+        requestInfo.url = "tieba.baidu.com";
+
+        requestInfo.host = "tieba.baidu.com";
+        requestInfo.bytes = str.getBytes();
+        requestInfo.len = requestInfo.bytes.length;
+        return requestInfo;
     }
 }
 
@@ -80,7 +100,9 @@ class SocketThreadInput extends Thread{
             int len;
             while((len=isOut.read(buffer)) != -1){
                 if(len>0){
+                    System.out.println("input buffer");
                     System.out.println(new String(buffer,0,len));
+                    System.out.println("input buffer end!");
                     osIn.write(buffer,0,len);
                     osIn.flush();
                 }
@@ -104,19 +126,17 @@ class SocketThreadOutput extends Thread{
             int len;
             while((len = isIn.read(buffer))!=-1){
                 if(len>0){
+
+                    System.out.println("output buffer");
                     System.out.println(new String(buffer,0,len));
+                    System.out.println("out buffer end");
+
                     osOut.write(buffer,0,len);
                     osOut.flush();
                 }
             }
-            byte[] bytes = "if-modified-since: abcs".getBytes();
-            osOut.write(bytes,0,bytes.length);
-            osOut.flush();
-            System.out.println(new String(bytes,0,len));
         }catch (Exception e){
             System.out.println("SocketThreadOutput leave");
         }
-
-
     }
 }

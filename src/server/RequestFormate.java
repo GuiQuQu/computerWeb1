@@ -4,11 +4,11 @@ TODO: formate bytes response from server
 
 package server;
 
+
 public class RequestFormate {
     public static Model formatter(byte[] buffer,int len){
         String str = new String(buffer,0,len);
-//        if(str.charAt(0) == 'C') str = "GET"+str.substring(7);
-
+        System.out.println(str);
         String[] source = str.split("\\r\\n");
 
         Model requestInfo = new Model();
@@ -31,8 +31,10 @@ public class RequestFormate {
                     requestInfo.cookies = map[1].substring(1);
             }
         }
+        System.out.println("host:"+ requestInfo.host);
         requestInfo.bytes = str.getBytes();
         requestInfo.len = requestInfo.bytes.length;
         return requestInfo;
     }
+
 }
