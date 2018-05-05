@@ -25,14 +25,15 @@ public class SockeThread extends Thread{
             isIn = socketIn.getInputStream();
             osIn = socketIn.getOutputStream();
 
+            //获取请求头部并解析，若需要重定向则改变解析后的host和url
             int len;
             Model requestInfo = null;
             if((len = isIn.read(bytes))!=-1&&len>0){
                 requestInfo = RequestFormate.formatter(bytes,len);
                 requestInfo.ip = socketIn.getLocalAddress().getHostAddress();
                 if(!Wall.redirect(requestInfo)) {
-                    requestInfo.host = "yumendy.com";
-                    requestInfo.url = "http://yumendy.com";
+                    requestInfo.host = Wall.redirectHost;
+                    requestInfo.url = Wall.redirectURL;
                 }
             }
 
@@ -44,9 +45,11 @@ public class SockeThread extends Thread{
             System.out.println(new String(requestInfo.bytes,0,requestInfo.len));
             System.out.println("http header end");
 
+            //将请求发送
             osOut.write(requestInfo.bytes,0,requestInfo.len);
             osOut.flush();
 
+            //创建输入和输出线程用于并行处理输入和输出
             if(Wall.forbid_ip(requestInfo)&&Wall.forbid_url(requestInfo)){
 
                 SocketThreadOutput out = new SocketThreadOutput(isIn,osOut);
@@ -71,22 +74,12 @@ public class SockeThread extends Thread{
             }
         }
     }
-    public static Model formatter(String str){
-
-        Model requestInfo = new Model();
-
-        requestInfo.method = "GET";
-        requestInfo.protocol = "HTTP/1.1";
-        requestInfo.url = "tieba.baidu.com";
-
-        requestInfo.host = "tieba.baidu.com";
-        requestInfo.bytes = str.getBytes();
-        requestInfo.len = requestInfo.bytes.length;
-        return requestInfo;
-    }
 }
 
 class SocketThreadInput extends Thread{
+    /*
+    将传入内容显示给浏览器
+     */
     private InputStream isOut;
     private OutputStream osIn;
     private byte[]buffer = new byte[1024];
@@ -113,6 +106,9 @@ class SocketThreadInput extends Thread{
     }
 }
 class SocketThreadOutput extends Thread{
+    /*
+    将请求传送到服务器
+     */
     private InputStream isIn;
     private OutputStream osOut;
     private byte[]buffer = new byte[1024];

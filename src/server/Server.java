@@ -8,7 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-
+/*
+    创建server线程，等待客户端接入
+*/
     private ServerSocket server = null;
 
     public Server(int port) throws IOException{

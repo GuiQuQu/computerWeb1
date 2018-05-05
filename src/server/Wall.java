@@ -11,14 +11,16 @@ import java.io.OutputStream;
 
 public class Wall {
     static String[] w_url_list = {
-        "jwts.hit.edu.cn"
+            "jwts.hit.edu.cn",
     };
     static String[] w_ip_list = {
-
+//        "127.0.0.1"
     };
     static String[] w_redirect_list = {
             "ito.hit.edu.cn/",
     };
+    static String redirectURL = "http://yumendy.com";
+    static String redirectHost = "yumendy.com";
 
     public static boolean forbid_url(Model requestInfo){
         for(String url:w_url_list){
